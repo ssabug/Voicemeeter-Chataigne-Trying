@@ -33,18 +33,42 @@ function init(){
 	}
 }
 
-function VMAPI_login(dynamicLibrary) {
+function VMAPI_login() {
 	script.log("Starting Voicemeeter API login");
 	login = util.findFunctionInDynamicLibrary(dynamicLibrary, "VBVMR_Login");
-	
+	script.log(login.vResult);
 	return login();
+}
+
+function VMAPI_runVM(arg) {
+	script.log("Starting Voicemeeter Application");
+	runVM = util.findFunctionInDynamicLibrary(dynamicLibrary, "VBVMR_RunVoicemeeter");	
+	return runVM(arg);
+}
+
+function VMAPI_setParamValue(dynamicLibrary,paramName,value) {
+	script.log("Sending param value to Voicemeeter API");
+	setParam=util.findFunctionInDynamicLibrary(dynamicLibrary, "VBVMR_SetParameterFloat");
+	
+	return setParam(paramName,value);
+}
+
+function VMAPI_getParamValue(dynamicLibrary,paramName) {
+	script.log("Getting param value from Voicemeeter API");
+	getParam = util.findFunctionInDynamicLibrary(dynamicLibrary, "VBVMR_GetParameterFloat");
+	var value=undefined;
+	getParam(paramName,value );
+	return value;
 }
 
 function moduleParameterChanged(param)
 {
 	script.log('moduleParameterChanged');
 	if (param.name == "login") {
-		setTimeout(VMAPI_login(dynamicLibrary),30000);
+		//setTimeout(VMAPI_login(),100000);
+		VMAPI_login();
+		script.log("login request ended");
+		VMAPI_runVM(2);
 	}
 }
 
