@@ -2,55 +2,60 @@ var dynamicLibrary = undefined;
 var logged=false;
 
 function init(){
-    script.log('Script Init');
-	
-	script.log("Voicemeeter API DLL path : " + local.parameters.voicemeeterAPIDLLPath.get() );
-	dynamicLibrary=util.loadDynamicLibrary(local.parameters.voicemeeterAPIDLLPath.get());
-	
+    script.log('Voicemeeter script Init');
+	VMAPI_init();
+}
+
+function VMAPI_init() {
+	path=local.parameters.voicemeeterAPIDLLPath.get();
+	script.log("Voicemeeter API DLL path : " + path );
+	dynamicLibrary=util.loadDynamicLibrary(path);
+
 	if (!dynamicLibrary ) {		
 		script.log("Voicemeeter DLL Loading error ");		
 	}
-	else {
-		
-		//runVM=util.findFunctionInDynamicLibrary(dynamicLibrary, "VBVMR_RunVoicemeeter");
-		//setParam=util.findFunctionInDynamicLibrary(dynamicLibrary, "VBVMR_SetParameterFloat");
-		
-		/*setTimeout(function(){
-			script.log(typeof res);
-			},30000);*/
-		//util.delayThreadMS(5000);
-		/*
-		if ( res ==1 ) {
-			script.log("Voicemeeter API login successful ");
-			runVM(2);
-
-			}
-		else {script.log("Voicemeeter API login error ");}*/
-		//script.log(res);
-		//script.log(obj);
-		//script.log(t);
-		//script.log(vResult);
-	}
+	return dynamicLibrary;
 }
 
 function VMAPI_login() {
 	script.log("Starting Voicemeeter API login");
 	login = util.findFunctionInDynamicLibrary(dynamicLibrary, "VBVMR_Login");
-	script.log(login.vResult);
-	return login();
+	/*var result=login();
+	/*if (result<0) {
+		script.log("Voicemeeter API login failed");
+	} else {
+		script.log("Voicemeeter API login successful");
+		local.parameters.loggedIn.set(true);
+	}
+	return result;*/
+	local.parameters.loggedIn.set(true);
+	login();
+	
+	//script.log(li.value);
+}
+
+function VMAPI_logout() {
+	script.log("Starting Voicemeeter API logout");
+	logout = util.findFunctionInDynamicLibrary(dynamicLibrary, "VBVMR_Logout");	
+	local.parameters.loggedIn.set(false);
+	logout();
+	/*if (lo == 1) {
+		script.log("Voicemeeter API logout done");
+		local.parameters.loggedIn.set(false);
+	}*/
 }
 
 function VMAPI_runVM(arg) {
 	script.log("Starting Voicemeeter Application");
 	runVM = util.findFunctionInDynamicLibrary(dynamicLibrary, "VBVMR_RunVoicemeeter");	
-	return runVM(arg);
+	/*return */runVM(arg);
 }
 
-function VMAPI_setParamValue(dynamicLibrary,paramName,value) {
+function VMAPI_setParamValue(paramName,value) {
 	script.log("Sending param value to Voicemeeter API");
 	setParam=util.findFunctionInDynamicLibrary(dynamicLibrary, "VBVMR_SetParameterFloat");
 	
-	return setParam(paramName,value);
+	/*return */setParam(paramName,value);
 }
 
 function VMAPI_getParamValue(dynamicLibrary,paramName) {
@@ -61,21 +66,33 @@ function VMAPI_getParamValue(dynamicLibrary,paramName) {
 	return value;
 }
 
+function VMAPI_isParamsDirty() {
+	getParam = util.findFunctionInDynamicLibrary(dynamicLibrary, "VBVMR_IsParametersDirty");
+	getParam();
+}
+
 function moduleParameterChanged(param)
 {
-	script.log('moduleParameterChanged');
-	if (param.name == "login") {
+	//script.log('moduleParameterChanged');	
+	if (param.name == "voicemeeterAPIDLLPath") {
+		VMAPI_init();
+	}
+	else if (param.name == "login") {
 		//setTimeout(VMAPI_login(),100000);
-		VMAPI_login();
-		script.log("login request ended");
-		VMAPI_runVM(2);
+		VMAPI_login();	
+	}
+	else if (param.name == "logout") {
+		VMAPI_logout();	
+	}
+	else if (param.name == "runVoiceMeeter") {
+		VMAPI_runVM(2);	
+	} 
+	else if (param.name == "debug") {
+		VMAPI_setParamValue("Strip[0].Gain",0.0);
 	}
 }
 
 function moduleValueChanged(value){
-    script.log('moduleValueChanged');
-    //script.log(value.isParameter());
-	script.log(typeof logged);
 
     if (value.isParameter()){
         
