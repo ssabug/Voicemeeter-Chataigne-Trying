@@ -1,0 +1,54 @@
+{
+	"name":"VoicemeeterDebug",
+	"type":"Empty",
+	"path":"Software",
+	
+	"version":"1.0.1",
+	"description":"Futur Voicemeeter Control Module",
+	"url":"",
+	"downloadURL":"",
+	
+	"hasInput":true,
+	"hasOutput":true, 
+
+	"hideDefaultCommands":true,
+
+	"hideDefaultParameters":
+	[
+
+	],
+
+	"parameters":
+	{
+		"Voicemeeter API DLL path": {
+			"type": "String",
+			"default":"C:/Program Files (x86)/VB/Voicemeeter/VoicemeeterRemote64.dll",
+		},
+		"login ": {
+			"type":"Trigger"
+		},
+		"logged in": {
+			"type": "Boolean",
+			"readOnly":true,
+			"default":false
+		},
+
+	},
+
+	"defaults":
+	{		
+		
+	},
+
+
+	"scripts":
+	[
+		"Voicemeeter.js"
+	],
+
+	"values":
+	{
+		"type":"Container",
+		"collapsed":true,
+	}
+}
